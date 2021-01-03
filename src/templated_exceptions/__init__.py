@@ -8,8 +8,8 @@ full error message. This provides excellent user description
 of errors, as they can be explained once, and optimized for
 clarity.
 """
-import typing
 
+import typing
 
 _HAS_JINJA_2 = True
 

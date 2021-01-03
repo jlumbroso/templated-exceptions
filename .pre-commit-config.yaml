@@ -39,12 +39,12 @@ repos:
         types: [python]
         require_serial: true
 
-      - id: reorder-python-imports
+      - id: isort
         name: Reorder python imports
-        entry: poetry run reorder-python-imports
+        entry: poetry run isort
         language: system
         types: [python]
-        args: [--application-directories=src]
+        args: [.]
 
       - id: trailing-whitespace
         name: Trim Trailing Whitespace
