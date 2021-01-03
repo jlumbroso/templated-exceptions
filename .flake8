@@ -1,0 +1,20 @@
+[flake8]
+select = B,B9,C,D,DAR,E,F,N,RST,S,W
+ignore =
+    RST210, DAR401, DAR402, D100 # check whether to continue to ignore
+    D202, # "No blank lines allowed after function docstring"
+    D212,E203,E501,RST201,RST203,RST301,W503
+max-line-length = 80
+max-complexity = 10
+per-file-ignores = tests/*:S101
+rst-directives =
+    # These are sorted alphabetically - but that does not matter
+    autosummary,data,currentmodule,deprecated,
+    glossary,moduleauthor,plot,testcode,
+    versionadded,versionchanged,
+rst-roles =
+    attr,class,func,meth,mod,obj,ref,term,
+    # C programming language:
+    c:member,
+    # Python programming language:
+    py:func,py:mod,py:exc,py:data,py:meth
