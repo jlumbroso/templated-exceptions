@@ -13,7 +13,7 @@ on errors related to the command-line parameters provided to a program:
 import templated_exceptions
 
 class ExampleRuntimeException(templated_exceptions.TemplatedException, RuntimeError):
-    TEMPLATE = "The program unexpectedly failed with these input parameters: {args}."
+    TEMPLATE = "Program unexpectedly failed with input args: {args}."
 
 raise ExampleRuntimeException(args=["myprogram", "-e", "--badflag"])
 ```
@@ -23,5 +23,5 @@ will produce the following exception stack trace:
 ```
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ExampleRuntimeException: The program unexpectedly failed with these input parameters: ['myprogram', '-e', '--badflag'].
+ExampleRuntimeException: Program unexpectedly failed with input args: ['myprogram', '-e', '--badflag'].
 ```
