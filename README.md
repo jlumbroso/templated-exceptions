@@ -23,6 +23,5 @@ will produce the following exception stack trace:
 ```
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ExampleRuntimeException: The program unexpectedly failed
-with these input parameters: ['myprogram', '-e', '--badflag'].
+ExampleRuntimeException: The program unexpectedly failed with these input parameters: ['myprogram', '-e', '--badflag'].
 ```
