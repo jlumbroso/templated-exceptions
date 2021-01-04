@@ -9,13 +9,14 @@ of errors, as they can be explained once, and optimized for
 clarity.
 """
 
+import collections
 import typing
 
 _HAS_JINJA_2 = True
 
 try:
     import jinja2
-except ImportError:
+except ImportError:  # pragma: no cover
     jinja2 = None
     _HAS_JINJA_2 = False
 
@@ -26,12 +27,14 @@ __version__ = "20.1.0"
 
 __all__ = [
     "TemplatedException",
+    "PEP3101TemplatedException",
     "Jinja2TemplatedException",
 ]
 
 
 _DEBUG = False
 _TEMPLATE_FIELD_NAME = "TEMPLATE"
+_MISSING_KEY_STR = "..."
 
 
 class TemplatedExceptionInternalRuntimeError(RuntimeError):
@@ -49,7 +52,7 @@ class TemplatedExceptionInternalRuntimeError(RuntimeError):
 # Standard (PEP 3101) templating engine
 
 
-class TemplatedException(Exception):
+class PEP3101TemplatedException(Exception):
     """
     Implements exceptions with templated messages using PEP 3101 string formatting.
 
@@ -91,11 +94,14 @@ class TemplatedException(Exception):
     # CLASS METHODS
 
     @classmethod
-    def _template_render(cls, template: str, **kwargs) -> typing.Optional[str]:
+    def _template_render(
+        cls, template: str, ignore_missing: bool = True, **kwargs
+    ) -> typing.Optional[str]:
         """
         Render a template with provided keyword arguments, using class' template engine.
 
         :param template: The PEP 3101 template to use
+        :param ignore_missing: Flag for whether to ignore missing template variables
         :param **kwargs: The dictionary to pass to the templating engine
 
         :return: The rendered template
@@ -109,7 +115,12 @@ class TemplatedException(Exception):
             return
 
         try:
-            ret = template.format(**kwargs)
+            if ignore_missing:
+                new_dict = collections.defaultdict(lambda: _MISSING_KEY_STR)
+                new_dict.update(**kwargs)
+                kwargs = new_dict
+
+            ret = template.format_map(kwargs)
             return ret
 
         except KeyError as exc:
@@ -296,6 +307,10 @@ class TemplatedException(Exception):
         return rendered_template
 
 
+# aliasing the name for convenience
+TemplatedException = PEP3101TemplatedException
+
+
 # Jinja2 templating engine
 
 
@@ -345,7 +360,12 @@ class Jinja2TemplatedException(TemplatedException):
             )
 
     @classmethod
-    def _template_render(cls, template: str, jinja2_kwargs=None, **kwargs):
+    def _template_render(
+        cls,
+        template: str,
+        jinja2_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None,
+        **kwargs
+    ) -> typing.Optional[str]:
         """
         Render a template with provided keyword arguments, using class' template engine.
 
@@ -354,12 +374,16 @@ class Jinja2TemplatedException(TemplatedException):
             template constructor
         :param **kwargs: The dictionary to pass to the templating engine
 
-        :return: The rendered template
+        :return: The rendered template or :py:data:`None` if no template is defined
 
         :raises TemplatedExceptionInternalRuntimeError: If there are any
             unresolved issues when rendering the template (such as a syntactically
             invalid template; or missing template variables)
         """
+
+        # anticipate most likely error!
+        if template is None:
+            return
 
         # checking if jinja2 seems installed
 
@@ -371,7 +395,7 @@ class Jinja2TemplatedException(TemplatedException):
             jinja2_kwargs = jinja2_kwargs or dict()
             jinja2_template = jinja2.Template(
                 source=template,
-                **jinja2_kwargs,
+                **(jinja2_kwargs or dict()),
             )
         except Exception as exc:
             raise TemplatedExceptionInternalRuntimeError(
