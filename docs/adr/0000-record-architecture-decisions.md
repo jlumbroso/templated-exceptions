@@ -1,7 +1,7 @@
 # Record Architecture Decisions
 
-* Status: accepted
-* Date: 2020-12-28
+- Status: accepted
+- Date: 2020-12-28
 
 ## Context
 
